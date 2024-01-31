@@ -1,0 +1,139 @@
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class PreferencesGeneratorEveryone {
+    private Map<Point, List<Point>> malePreferencesMap;
+    private Map<Point, List<Point>> femalePreferencesMap;
+
+    public PreferencesGeneratorEveryone() {
+        malePreferencesMap = new HashMap<>();
+        femalePreferencesMap = new HashMap<>();
+    }
+
+    public void addMalePreference(Point referencePoint, List<Point> preferences) {
+        malePreferencesMap.put(referencePoint, preferences);
+    }
+
+    public void addFemalePreference(Point referencePoint, List<Point> preferences) {
+        femalePreferencesMap.put(referencePoint, preferences);
+    }
+
+    public Map<Point, List<Point>> getAllFemalePreferences() {
+        return femalePreferencesMap;
+    }
+
+    public Map<Point, List<Point>> getAllMalePreferences() {
+        return malePreferencesMap;
+    }
+
+    public void addData() {
+        // Stores random male points
+        List<Point> malePoints = new ArrayList<>();
+
+        // Stores random female points
+        List<Point> femalePoints = new ArrayList<>();
+
+        String[] personalityTypes = new String[]{"ISTJ", "ISFJ", "INFJ", "INTJ", "ISTP", "ISFP", "INFP", "INTP",
+                "ESTP", "ESFP", "ENFP", "ENTP", "ESTJ", "ESFJ", "ENFJ", "ENTJ"};
+
+        // Generate random male points and preferences
+        for (int m = 0; m < 5; m++) {
+            // Generate random male point
+            String randomMalePersonality = personalityTypes[ThreadLocalRandom.current().nextInt(personalityTypes.length)];
+            double randomXFactorScore = ThreadLocalRandom.current().nextDouble(1.0, 10.01);
+
+            // Generate currentPreferenceOrder for the male point
+            List<String> currentPreferenceOrderMale = new ArrayList<>();
+            for (int i = 0; i <= 15; i++) {
+                currentPreferenceOrderMale.add(PersonalityOrder.applyTransformations(convertToBinary(randomMalePersonality), i));
+            }
+
+            // Create the male point
+            Point malePoint = new Point(randomMalePersonality, 0, randomXFactorScore, m, currentPreferenceOrderMale, "male");
+            malePoints.add(malePoint);
+        }
+
+
+        // Generate random female points and preferences
+        for (int f = 0; f < 5; f++) {
+            // Generate random female point
+            String randomFemalePersonality = personalityTypes[ThreadLocalRandom.current().nextInt(personalityTypes.length)];
+            double randomXFactorScore = ThreadLocalRandom.current().nextDouble(1.0, 10.01);
+
+            // Generate currentPreferenceOrder for the female point
+            List<String> currentPreferenceOrderFemale = new ArrayList<>();
+            for (int i = 0; i <= 15; i++) {
+                currentPreferenceOrderFemale.add(PersonalityOrder.applyTransformations(convertToBinary(randomFemalePersonality), i));
+            }
+
+            // Create the female point
+            Point femalePoint = new Point(randomFemalePersonality, 0, randomXFactorScore, f, currentPreferenceOrderFemale, "female");
+            femalePoints.add(femalePoint);
+        }
+
+
+        // Generate female preferences for each male point
+        for (int i = 0; i < 5; i++) {
+            Point maleReference = malePoints.get(i);
+            System.out.println("\nPreferences for Male Point " + maleReference.getId() + " - " + maleReference.getPersonalityType() + ":");
+            // Generate preference order for each male point
+            this.addMalePreference(maleReference, generatePreferences(maleReference, femalePoints));
+        }
+
+        // Generate male preferences for each female point
+        for (int i = 0; i < 5; i++) {
+            Point femaleReference = femalePoints.get(i);
+            System.out.println("\nPreferences for Female Point " + femaleReference.getId() + " - " + femaleReference.getPersonalityType() + ":");
+
+            // Generate preference order for each female point
+            this.addFemalePreference(femaleReference, generatePreferences(femaleReference, malePoints));
+        }
+    }
+    public List<Point> generatePreferences(Point referencePoint, List<Point> otherPoints) {
+        List<Point> results = new ArrayList<>();
+        Map<Point, Double> preferencesDistance = new HashMap<>();
+        // Set referencePoint to 0, start of the graph
+        referencePoint.setXCoordinate(0);
+        for (Point otherPoint : otherPoints) {
+            // Determine xCoordinate for otherPoint based on referencePoints' preferenceList
+            otherPoint.setXCoordinate(referencePoint.getPersonalityPreferenceOrder().indexOf(convertToBinary(otherPoint.getPersonalityType())));
+            double distance = referencePoint.calculateDistance(otherPoint);
+            preferencesDistance.put(otherPoint, distance);
+        }
+
+        // Sort preferences by distance
+        List<Map.Entry<Point, Double>> sortedPreferences = new ArrayList<>(preferencesDistance.entrySet());
+        sortedPreferences.sort(Map.Entry.comparingByValue());
+
+        // Print preferences
+        System.out.println("\nPreferences for " + referencePoint.getBinaryPersonality() + " (X-Coordinate: " + referencePoint.getXCoordinate() + "):");
+        for (Map.Entry<Point, Double> entry : sortedPreferences) {
+            Point point = entry.getKey();
+            double distance = entry.getValue();
+            results.add(point);
+            System.out.println("Personality " + point.getBinaryPersonality() + " (X-Coordinate: " + point.getXCoordinate() + "), X-Factor Score: " + point.getXFactorScore() + ": Distance " + distance);
+        }
+        return results;
+    }
+
+    public String convertToBinary(String personalityType) {
+        StringBuilder binaryPersonality = new StringBuilder();
+
+        for (char c : personalityType.toCharArray()) {
+            switch (c) {
+                case 'I':
+                case 'N':
+                case 'T':
+                case 'J':
+                    binaryPersonality.append("1");
+                    break;
+                default:
+                    binaryPersonality.append("0");
+                    break;
+            }
+        }
+
+        return binaryPersonality.toString();
+    }
+
+}
