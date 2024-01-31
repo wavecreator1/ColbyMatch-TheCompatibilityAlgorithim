@@ -1,0 +1,100 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class GaleShapleyAlgorithm {
+    private static Map<Point, Point> galeShapley(List<Point> males, Map<Integer, List<Point>> malePrefers, Map<Integer, List<Point>> femalePrefers){
+        Map<Point, Point> matchedTo = new HashMap<>();
+        List<Point> freeMales = new LinkedList<Point>();
+        freeMales.addAll(males);
+
+        while(!freeMales.isEmpty()){
+            Point thisMale = freeMales.remove(0);
+            List<Point> thisMalePrefers = malePrefers.get(thisMale.getId());
+            for(Point female:thisMalePrefers){
+                if(matchedTo.get(female) == null){
+                    matchedTo.put(female, thisMale);
+                    break;
+                }else{
+                    Point otherMale = matchedTo.get(female);
+                    List<Point> thisFemalePrefers = femalePrefers.get(female.getId());
+                    if(thisFemalePrefers.indexOf(thisMale) <
+                            thisFemalePrefers.indexOf(otherMale)){
+
+                        matchedTo.put(female, thisMale);
+                        freeMales.add(otherMale);
+                        break;
+                    }
+                }
+            }
+        }
+        return matchedTo;
+    }
+
+    public static void main(String[] args) {
+        // Retrieve the points and preferences from the PreferencesGeneratorEveryone
+        PreferencesGeneratorEveryone preferencesGenerator = new PreferencesGeneratorEveryone();
+        preferencesGenerator.addData();
+
+        // Get all preferences from the generator
+        Map<Point, List<Point>> allMalePreferences = preferencesGenerator.getAllMalePreferences();
+        Map<Point, List<Point>> allFemalePreferences = preferencesGenerator.getAllFemalePreferences();
+        List<Point> allMale = new ArrayList<>();
+        Map<Integer, List<Point>> allMalePoints= new HashMap<>();
+        Map<Integer, List<Point>> allFemalePoints= new HashMap<>();
+        for(Point male: allMalePreferences.keySet()) {
+            allMale.add(male);
+        }
+
+
+        // Create Point objects for each preference and set their preference list
+        for (Map.Entry<Point, List<Point>> entry : allMalePreferences.entrySet()) {
+            Point referencePoint = entry.getKey();
+            List<Point> preferencePoints = entry.getValue();
+
+            allMalePoints.put(referencePoint.getId(), preferencePoints);
+        }
+
+        for (Map.Entry<Point, List<Point>> entry : allFemalePreferences.entrySet()) {
+            Point referencePoint = entry.getKey();
+            List<Point> preferencePoints = entry.getValue();
+
+            allFemalePoints.put(referencePoint.getId(), preferencePoints);
+        }
+
+        System.out.println("\n\n\n\n\nMale and Female Preferences:\n");
+
+        for(Map.Entry<Integer, List<Point>> entry : allMalePoints.entrySet()) {
+            int male = entry.getKey();
+            List<Point> preferences = entry.getValue();
+            System.out.print("Male " + male + " prefers Females: ");
+            for(Point preference: preferences) {
+                System.out.print(preference.getId() + " " + preference.getPersonalityType() + " ");
+
+            }
+            System.out.println("\n");
+        }
+
+        for(Map.Entry<Integer, List<Point>> entry : allFemalePoints.entrySet()) {
+            int female = entry.getKey();
+            List<Point> preferences = entry.getValue();
+            System.out.print("Female " + female + " prefers males: ");
+            for(Point preference: preferences) {
+                System.out.print(preference.getId() + " " + preference.getPersonalityType() + " ");
+
+            }
+            System.out.println("\n");
+        }
+
+        // Run the Gale-Shapley algorithm to create stable pairs
+        Map<Point, Point> allMatches = galeShapley(allMale, allMalePoints, allFemalePoints);
+
+        System.out.println("\n\n\nGale-Shapley results:\n");
+
+        // Print the stable pairs
+        for (Map.Entry<Point, Point> entry: allMatches.entrySet()) {
+            Point female = entry.getKey();
+            Point male = entry.getValue();
+            System.out.println(female.getGender() + " " + female.getId() + " - " + female.getPersonalityType() + " is paired with " + male.getGender() + " " + male.getId() + " - " + male.getPersonalityType());
+        }
+    }
+}
