@@ -1,0 +1,77 @@
+import java.util.List;
+
+public class Point {
+    private String personalityType;
+    private int xCoordinate;
+    private double xFactorScore;
+    private int id;
+
+    private String gender;
+
+    private List<String> personalityPreferenceOrder;
+
+    public Point(String personalityType, int xCoordinate, double xFactorScore, int id, List<String> personalityPreferenceOrder, String gender) {
+        this.personalityType = personalityType;
+        this.xCoordinate = xCoordinate;
+        this.xFactorScore = xFactorScore;
+        this.id = id;
+        this.personalityPreferenceOrder = personalityPreferenceOrder;
+        this.gender = gender;
+    }
+
+    public Point(String personalityType, int xCoordinate, double xFactorScore, int id) {
+        this.personalityType = personalityType;
+        this.xCoordinate = xCoordinate;
+        this.xFactorScore = xFactorScore;
+        this.id = id;
+    }
+
+    public double getXFactorScore() {
+        return xFactorScore;
+    }
+
+    public String getGender() { return gender; };
+
+    public int getXCoordinate() {
+        return xCoordinate;
+    }
+
+    public void setXCoordinate(int xCoor) {
+        this.xCoordinate = xCoor;
+    }
+
+    public String getPersonalityType() {
+        return personalityType;
+    }
+
+    public int getId() { return id; }
+
+    public List<String> getPersonalityPreferenceOrder() {
+        return personalityPreferenceOrder;
+    }
+
+    public String getBinaryPersonality() {
+        StringBuilder binaryPersonality = new StringBuilder();
+
+        for (char c : personalityType.toCharArray()) {
+            switch (c) {
+                case 'I':
+                case 'N':
+                case 'T':
+                case 'J':
+                    binaryPersonality.append("1");
+                    break;
+                default:
+                    binaryPersonality.append("0");
+                    break;
+            }
+        }
+
+        return binaryPersonality.toString();
+    }
+
+    public double calculateDistance(Point otherPoint) {
+        return Math.sqrt(Math.pow((this.xFactorScore - otherPoint.xFactorScore), 2)
+                + Math.pow(this.xCoordinate - otherPoint.xCoordinate, 2));
+    }
+}
