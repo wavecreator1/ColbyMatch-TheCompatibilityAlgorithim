@@ -37,7 +37,7 @@ public class PreferencesGeneratorEveryone {
                 "ESTP", "ESFP", "ENFP", "ENTP", "ESTJ", "ESFJ", "ENFJ", "ENTJ"};
 
         // Generate random male points and preferences
-        for (int m = 0; m < 5; m++) {
+        for (int m = 0; m < 5000; m++) {
             // Generate random male point
             String randomMalePersonality = personalityTypes[ThreadLocalRandom.current().nextInt(personalityTypes.length)];
             double randomXFactorScore = ThreadLocalRandom.current().nextDouble(1.0, 10.01);
@@ -55,7 +55,7 @@ public class PreferencesGeneratorEveryone {
 
 
         // Generate random female points and preferences
-        for (int f = 0; f < 5; f++) {
+        for (int f = 0; f < 5000; f++) {
             // Generate random female point
             String randomFemalePersonality = personalityTypes[ThreadLocalRandom.current().nextInt(personalityTypes.length)];
             double randomXFactorScore = ThreadLocalRandom.current().nextDouble(1.0, 10.01);
@@ -73,7 +73,7 @@ public class PreferencesGeneratorEveryone {
 
 
         // Generate female preferences for each male point
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5000; i++) {
             Point maleReference = malePoints.get(i);
             System.out.println("\nPreferences for Male Point " + maleReference.getId() + " - " + maleReference.getPersonalityType() + ":");
             // Generate preference order for each male point
@@ -81,7 +81,7 @@ public class PreferencesGeneratorEveryone {
         }
 
         // Generate male preferences for each female point
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5000; i++) {
             Point femaleReference = femalePoints.get(i);
             System.out.println("\nPreferences for Female Point " + femaleReference.getId() + " - " + femaleReference.getPersonalityType() + ":");
 
