@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Point {
     private String personalityType;
@@ -50,6 +53,26 @@ public class Point {
         return personalityPreferenceOrder;
     }
 
+    public String getBinaryPersonalityV2(String personalityType) {
+        StringBuilder binaryPersonality = new StringBuilder();
+
+        for (char c : this.personalityType.toCharArray()) {
+            switch (c) {
+                case 'I':
+                case 'N':
+                case 'T':
+                case 'J':
+                    binaryPersonality.append("1");
+                    break;
+                default:
+                    binaryPersonality.append("0");
+                    break;
+            }
+        }
+
+        return binaryPersonality.toString();
+    }
+
     public String getBinaryPersonality() {
         StringBuilder binaryPersonality = new StringBuilder();
 
@@ -70,8 +93,19 @@ public class Point {
         return binaryPersonality.toString();
     }
 
+
     public double calculateDistance(Point otherPoint) {
         return Math.sqrt(Math.pow((this.xFactorScore - otherPoint.xFactorScore), 2)
                 + Math.pow(this.xCoordinate - otherPoint.xCoordinate, 2));
+    }
+
+    public double generatePreferencesUseful(Point referencePoint, Point otherPoint) {
+        // Set referencePoint to 0, start of the graph
+        referencePoint.setXCoordinate(0);
+        // Determine xCoordinate for otherPoint based on referencePoints' preferenceList
+        otherPoint.setXCoordinate(referencePoint.getPersonalityPreferenceOrder().indexOf(getBinaryPersonalityV2(otherPoint.getPersonalityType())));
+        double distance = referencePoint.calculateDistance(otherPoint);
+
+        return distance;
     }
 }
