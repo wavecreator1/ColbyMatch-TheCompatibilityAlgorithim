@@ -91,10 +91,26 @@ public class GaleShapleyAlgorithm {
         System.out.println("\n\n\nGale-Shapley results:\n");
 
         // Print the stable pairs
+        double totalDistance = 0;
+        double total = 0;
+        double count = 0;
+        double realDistance = 0;
         for (Map.Entry<Point, Point> entry: allMatches.entrySet()) {
             Point female = entry.getKey();
             Point male = entry.getValue();
-            System.out.println(female.getGender() + " " + female.getId() + " - " + female.getPersonalityType() + " is paired with " + male.getGender() + " " + male.getId() + " - " + male.getPersonalityType());
+            realDistance = male.generatePreferencesUseful(female, male);
+            total = realDistance + total;
+            count++;
+            System.out.println(female.getGender() + " " + female.getId() + " - " + female.getPersonalityType() + ", " + female.getXCoordinate() + " and " + female.getXFactorScore() + " is paired with " + male.getGender() + " " + male.getId() + " - " + male.getPersonalityType() + ", " + male.getXCoordinate() + " and " + male.getXFactorScore());
+            System.out.println("Distance between matched pair: " + realDistance);
+
+
+//            System.out.println(female.getGender() + " " + female.getId() + " - " + female.getPersonalityType() + ", " + female.getXCoordinate() + " and " + female.getXFactorScore() + " is paired with " + male.getGender() + " " + male.getId() + " - " + male.getPersonalityType() + ", " + male.getXCoordinate() + " and " + male.getXFactorScore());
+//            System.out.println("Distance between matched pair: " + male.calculateDistance(female));
+//            totalDistance = male.calculateDistance(female);
+//            total = totalDistance + total;
+//            count++;
         }
+          System.out.println ("\n\nAverage Distance between matched pairs: "+ (double)(total / count));
     }
 }
