@@ -1,0 +1,2 @@
+GET https://api.typeform.com/forms/HOxM2Mza/responses?page_size=25
+Authorization: Bearer tfp_F3nC9tt5eHbFb3VioGKxsVXwVniZsLoACyegD22MKZtD_3soNTfgAmR3PmM
