@@ -1,2 +1,89 @@
-GET https://api.typeform.com/forms/HOxM2Mza/responses?page_size=25
-Authorization: Bearer tfp_F3nC9tt5eHbFb3VioGKxsVXwVniZsLoACyegD22MKZtD_3soNTfgAmR3PmM
+package org.example;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class TypeformAPIExample {
+
+    public static void main(String[] args) {
+        String endpointUrl = "https://api.typeform.com/forms/HOxM2Mza/responses?page_size=25"; // Replace {form_id} with your actual form ID
+        String apiKey = ""; // Replace with your actual API Key
+
+        TypeformAPIExample example = new TypeformAPIExample();
+        String response = example.callTypeformAPI(endpointUrl, apiKey);
+        System.out.println("Response from Typeform API: " + response);
+        example.parseAndDisplayResponse(response);
+    }
+
+    public String callTypeformAPI(String endpointUrl, String apiKey) {
+        StringBuilder response = new StringBuilder();
+        try {
+            URL url = new URL(endpointUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET"); // or "POST", "PUT", "DELETE", etc.
+            conn.setRequestProperty("Authorization", "Bearer " + apiKey); // Set API Key for Authorization
+            conn.setRequestProperty("Content-Type", "application/json"); // Set content type if necessary
+
+            // Check for successful response
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+            } else {
+                System.out.println("Request failed: HTTP error code : " + conn.getResponseCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response.toString();
+    }
+
+    private void parseAndDisplayResponse(String jsonResponse) {
+        JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+        JsonArray items = jsonObject.getAsJsonArray("items");
+        if (items != null) {
+            for (JsonElement item : items) {
+                JsonArray responses = item.getAsJsonObject().getAsJsonArray("responses");
+                if (responses != null) {
+                    for (JsonElement response : responses) {
+                        JsonObject field = response.getAsJsonObject().getAsJsonObject("field");
+                        String fieldId = field.get("id").getAsString();
+                        // Check if the current field ID matches the specific block reference
+                        if ("xk6KGgS6jRnX".equals(fieldId)) {
+                            String fieldType = field.get("type").getAsString();
+                            // Handle data extraction based on the type of response
+                            switch (fieldType) {
+                                case "short_text":
+                                    System.out.println("Short Text Response: " + response.getAsJsonObject().get("text").getAsString());
+                                    break;
+                                case "multiple_choice":
+                                    JsonObject choice = response.getAsJsonObject().getAsJsonObject("choice");
+                                    if (choice.has("label")) {
+                                        System.out.println("Multiple Choice Response: " + choice.get("label").getAsString());
+                                    }
+                                    break;
+                                case "opinion_scale":
+                                    System.out.println("Opinion Scale Response: " + response.getAsJsonObject().get("number").getAsInt());
+                                    break;
+                                default:
+                                    System.out.println("Unsupported type for this block reference.");
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
